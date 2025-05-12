@@ -1,0 +1,1 @@
+llamafactory-cli train examples/train_full/sft_ds2.yaml

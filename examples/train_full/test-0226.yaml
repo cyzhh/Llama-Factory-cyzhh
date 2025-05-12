@@ -1,0 +1,38 @@
+### model
+model_name_or_path: /var/lib/docker/raw_models/Qwen2.5-7B-Instruct
+### method
+stage: sft
+do_train: true
+finetuning_type: full
+deepspeed: examples/deepspeed/ds_z2_config.json
+# flash_attn: fa2
+rope_scaling: dynamic
+# shift_attn: true
+
+### dataset
+dataset: public_long_form_thought_data_5k
+template: long_form_thought
+cutoff_len: 8192
+max_samples: 4922
+overwrite_cache: true
+preprocessing_num_workers: 16
+
+### output
+output_dir: /var/lib/docker/trained_models/Qwen2.5-7B-Instruct-test-0226
+save_only_model: true
+logging_steps: 1
+save_steps: 10000
+plot_loss: true
+overwrite_output_dir: true
+
+### train
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 1
+learning_rate: 2.0e-5
+num_train_epochs: 4.0
+lr_scheduler_type: cosine
+weight_decay: 0.1
+bf16: true
+ddp_timeout: 180000000
+report_to: wandb
+

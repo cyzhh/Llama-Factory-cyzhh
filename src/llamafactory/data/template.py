@@ -1306,7 +1306,7 @@ register_template(
 # copied from chatml template
 register_template(
     name="qwen",
-    format_user=StringFormatter(slots=["<|im_start|>user\n{{content}}<|im_end|>\n<|im_start|>assistant\n"]),
+    format_user=StringFormatter(slots=["<|im_start|>user\n{{content}}Please reason step by step, and your final answer within \\boxed{}.<|im_end|>\n<|im_start|>assistant\n"]),
     format_assistant=StringFormatter(slots=["{{content}}<|im_end|>\n"]),
     format_system=StringFormatter(slots=["<|im_start|>system\n{{content}}<|im_end|>\n"]),
     format_function=FunctionFormatter(slots=["{{content}}<|im_end|>\n"], tool_format="qwen"),
@@ -1317,7 +1317,6 @@ register_template(
     default_system="You are a helpful assistant.",
     stop_words=["<|im_end|>"],
 )
-
 
 # copied from chatml template
 register_template(
@@ -1537,3 +1536,59 @@ register_template(
     format_user=StringFormatter(slots=["<human>:{{content}}\n<bot>:"]),
     format_assistant=StringFormatter(slots=["{{content}}\n"]),
 )
+
+
+register_template(
+    name="long_form_thought",
+    format_user=StringFormatter(slots=["<|im_start|>user\n{{content}}<|im_end|>\n<|im_start|>assistant\n"]),
+    format_system=StringFormatter(slots=["<|im_start|>system\n{{content}}<|im_end|>\n"]),
+    format_observation=StringFormatter(slots=["<|im_start|>tool\n{{content}}<|im_end|>\n<|im_start|>assistant\n"]),
+    default_system="Your role as an assistant involves thoroughly exploring questions through a systematic long thinking process before providing the final precise and accurate solutions. This requires engaging in a comprehensive cycle of analysis, summarizing, exploration, reassessment, reflection, backtracing, and iteration to develop well-considered thinking process.\n\nPlease structure your response into two main sections: Thought and Solution.\n\nIn the Thought section, detail your reasoning process using the specified format:\n\n```\n<|begin_of_thought|>\n{thought with steps seperated with \"\n\n\"}\n<|end_of_thought|>\n```\n\nEach step should include detailed considerations such as analisying questions, summarizing relevant findings, brainstorming new ideas, verifying the accuracy of the current steps, refining any errors, and revisiting previous steps. Try to use casual, genuine phrases like: \"Hmm...\", \"This is interesting because...\", \"Wait, let me think about...\", \"Actually...\", \"Now that I look at it...\", \"This reminds me of...\", \"I wonder if...\", \"But then again...\", \"Let's see if...\", \"Alternatively...\", \"Let's summaize existing information...\", \"This might mean that...\", \"why/how/when/where...\", etc, to make your thought process be coherent, clear, and logically sound, effectively simulating human cognitive processes.\n\nIn the Solution section, based on various attempts, explorations, and reflections from the Thought section, systematically present the final solution that you deem correct. The solution should remain a logical, accurate, concise expression style and detail necessary step needed to reach the conclusion, formatted as follows:\n\n```\n<|begin_of_solution|>\n{final formatted, precise, and clear solution}\n<|end_of_solution|>\n```\n\nNow, try to solve the following question through the above guidlines:\n",
+    stop_words=["<|im_end|>"],
+    replace_eos=True,
+    replace_jinja_template=False,
+) 
+
+register_template(
+    name="cyz_qwen_r1",
+    format_user=StringFormatter(slots=["<|im_start|>user\n{{content}}Given a question and four options, please select the right answer. Your answer should be \"A\", \"B\", \"C\" or \"D\". Please directly give the answer without any explanation.\n<|im_end|>\n<|im_start|>assistant\n"]),
+    format_system=StringFormatter(slots=["<|im_start|>system\nYou are a helpful assistant.{{content}}<|im_end|>\n"]),
+    format_observation=StringFormatter(slots=["<|im_start|>tool\n{{content}}<|im_end|>\n<|im_start|>assistant\n"]),
+    stop_words=["<|im_end|>"],
+    replace_eos=True,
+    replace_jinja_template=False,
+) 
+
+register_template(
+    name="deepseek_r1",
+    format_user=StringFormatter(slots=["<|im_start|>user\n{{content}}<|im_end|>\n<|im_start|>assistant\n"]),
+    format_system=StringFormatter(slots=["<|im_start|>system\n{{content}}<|im_end|>\n"]),
+    format_observation=StringFormatter(slots=["<|im_start|>tool\n{{content}}<|im_end|>\n<|im_start|>assistant\n"]),
+    default_system="Your role as an assistant involves thoroughly exploring questions through a systematic long thinking process before providing the final precise and accurate solutions. This requires engaging in a comprehensive cycle of analysis, summarizing, exploration, reassessment, reflection, backtracing, and iteration to develop well-considered thinking process. Please structure your response into two main sections: Thought and Solution. In the Thought section, detail your reasoning process using the specified format: <|begin_of_thought|> {{thought with steps separated with '\n\n'}} <|end_of_thought|> Each step should include detailed considerations such as analisying questions, summarizing relevant findings, brainstorming new ideas, verifying the accuracy of the current steps, refining any errors, and revisiting previous steps. In the Solution section, based on various attempts, explorations, and reflections from the Thought section, systematically present the final solution that you deem correct. The solution should remain a logical, accurate, concise expression style and detail necessary step needed to reach the conclusion, formatted as follows: <|begin_of_solution|> {{final formatted, precise, and clear solution}} <|end_of_solution|> Now, try to solve the following question through the above guidelines:",
+    stop_words=["<|im_end|>"],
+    replace_eos=True,
+    replace_jinja_template=False,
+)
+
+
+register_template(
+    name="Bespoke-Stratos",
+    format_user=StringFormatter(slots=["<|im_start|>user\n{{content}}<|im_end|>\n<|im_start|>assistant\n"]),
+    format_system=StringFormatter(slots=["<|im_start|>system\n{{content}}<|im_end|>\n"]),
+    format_observation=StringFormatter(slots=["<|im_start|>tool\n{{content}}<|im_end|>\n<|im_start|>assistant\n"]),
+    default_system="Your role as an assistant involves thoroughly exploring questions through a systematic long thinking process before providing the final precise and accurate solutions. This requires engaging in a comprehensive cycle of analysis, summarizing, exploration, reassessment, reflection, backtracing, and iteration to develop well-considered thinking process. Please structure your response into two main sections: Thought and Solution. In the Thought section, detail your reasoning process using the specified format: <|begin_of_thought|> {{thought with steps separated with '\n\n'}} <|end_of_thought|> Each step should include detailed considerations such as analisying questions, summarizing relevant findings, brainstorming new ideas, verifying the accuracy of the current steps, refining any errors, and revisiting previous steps. In the Solution section, based on various attempts, explorations, and reflections from the Thought section, systematically present the final solution that you deem correct. The solution should remain a logical, accurate, concise expression style and detail necessary step needed to reach the conclusion, formatted as follows: <|begin_of_solution|> {{final formatted, precise, and clear solution}} <|end_of_solution|> Now, try to solve the following question through the above guidelines:",
+    stop_words=["<|im_end|>"],
+    replace_eos=True,
+    replace_jinja_template=False,
+) 
+
+register_template(
+    name="qwen_experiment",
+    format_user=StringFormatter(slots=["<|im_start|>user\n{{content}}<|im_end|>\n<|im_start|>assistant\n"]),
+    format_system=StringFormatter(slots=["<|im_start|>system\n{{content}}<|im_end|>\n"]),
+    format_observation=StringFormatter(slots=["<|im_start|>tool\n{{content}}<|im_end|>\n<|im_start|>assistant\n"]),
+    default_system="You are a professional experimental chemist. Please generate an experimental plan according to the following requirements, describe the experimental process in clear steps, and each step must include specific operations and expected phenomena. Analyze the changes of reactants, products, and possible catalysts in each step.\n\n",
+    stop_words=["<|im_end|>"],
+    replace_eos=True,
+    replace_jinja_template=False,
+) 
