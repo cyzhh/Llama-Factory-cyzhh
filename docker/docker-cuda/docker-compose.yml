@@ -11,17 +11,15 @@ services:
         INSTALL_LIGER_KERNEL: "false"
         INSTALL_HQQ: "false"
         INSTALL_EETQ: "false"
-        PIP_INDEX: https://pypi.org/simple
-    container_name: llamafactory
+        PIP_INDEX: https://mirrors.ustc.edu.cn/pypi/simple
+    container_name: llamafactory-new
     volumes:
       - ../../hf_cache:/root/.cache/huggingface
       - ../../ms_cache:/root/.cache/modelscope
       - ../../om_cache:/root/.cache/openmind
       - ../../data:/app/data
       - ../../output:/app/output
-    ports:
-      - "7860:7860"
-      - "8000:8000"
+      - ../../examples:/app/examples
     ipc: host
     tty: true
     shm_size: "16gb"

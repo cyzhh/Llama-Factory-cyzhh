@@ -1,31 +1,42 @@
-FROM pytorch/pytorch:2.5.1-cuda12.1-cudnn9-devel AS builder
+# 使用 NVIDIA 官方镜像作为基础
+ARG BASE_IMAGE=nvcr.io/nvidia/pytorch:24.12-py3
+FROM ${BASE_IMAGE}
 
-# 第一阶段编译flash-attn
-RUN pip install flash-attn --no-build-isolation && \
-    pip wheel flash-attn -w /tmp/wheels/
+# 环境变量配置
+ENV MAX_JOBS=4
+ENV FLASH_ATTENTION_FORCE_BUILD=TRUE
+ENV VLLM_WORKER_MULTIPROC_METHOD=spawn
 
-FROM pytorch/pytorch:2.5.1-cuda12.1-cudnn9-runtime
-
-COPY --from=builder /tmp/wheels /tmp/wheels
-
-# apt换源
-RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list && \
-    sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list && \
-    sed -i 's/http:/https:/g' /etc/apt/sources.list && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-    git \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
+# 安装参数（根据需求开启）
+ARG INSTALL_DEEPSPEED=true
+ARG INSTALL_FLASHATTN=true
+ARG PIP_INDEX=https://mirrors.ustc.edu.cn/pypi/simple
 
 WORKDIR /app
 
-# 安装Llama-Factory及依赖
-RUN pip install /tmp/wheels/flash-attn.whl && \
-    pip install --no-cache-dir deepspeed && \
-    git clone --depth=1 https://github.com/hiyouga/LLaMA-Factory.git . && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip install -e ".[torch,metrics]"
+# 1. 安装基础依赖
+COPY requirements.txt /app
+RUN pip config set global.index-url "$PIP_INDEX" && \
+    pip install --upgrade pip && \
+    pip install -r requirements.txt
 
-# 训练启动命令（Lora微调配置）
-CMD ["llamafactory-cli", "train", "examples/train_full/sft_ds2.yaml"]
+# 2. 克隆仓库（替换为您fork的仓库）
+RUN git clone https://github.com/cyzhh/Llama-Factory-cyzhh.git /app
+
+# 3. 安装扩展包（启用deepspeed和flash-attn）
+RUN pip install -e ".[deepspeed,torch,metrics]" && \
+    if [ "$INSTALL_FLASHATTN" == "true" ]; then \
+        pip uninstall -y ninja transformer-engine flash-attn && \
+        pip install ninja && \
+        pip install --no-cache-dir flash-attn --no-build-isolation; \
+    fi
+
+# 4. 数据准备
+RUN mkdir -p /app/data && \
+    huggingface-cli download cyzhh/train --repo-type dataset --local-dir /app/data
+
+# 5. 挂载点配置
+VOLUME ["/app/data", "/app/output", "/app/models"]
+
+# 6. 训练启动命令（覆盖默认CMD）
+CMD ["llamafactory-cli", "train", "examples/train_lora/llama3_lora_sft.yaml"]

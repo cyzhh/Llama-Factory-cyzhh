@@ -1,4 +1,4 @@
-# Default use the NVIDIA official image with PyTorch 2.6.0
+# Default se the NVIDIA official image with PyTorch 2.6.0u
 # https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/index.html
 ARG BASE_IMAGE=nvcr.io/nvidia/pytorch:24.12-py3
 FROM ${BASE_IMAGE}
@@ -7,16 +7,18 @@ FROM ${BASE_IMAGE}
 ENV MAX_JOBS=4
 ENV FLASH_ATTENTION_FORCE_BUILD=TRUE
 ENV VLLM_WORKER_MULTIPROC_METHOD=spawn
+ENV USE_MODELSCOPE_HUB=1
+ENV HF_ENDPOINT=https://hf-mirror.com
 
 # Define installation arguments
 ARG INSTALL_BNB=false
-ARG INSTALL_VLLM=false
-ARG INSTALL_DEEPSPEED=false
-ARG INSTALL_FLASHATTN=false
+ARG INSTALL_VLLM=true
+ARG INSTALL_DEEPSPEED=true
+ARG INSTALL_FLASHATTN=true
 ARG INSTALL_LIGER_KERNEL=false
 ARG INSTALL_HQQ=false
 ARG INSTALL_EETQ=false
-ARG PIP_INDEX=https://pypi.org/simple
+ARG PIP_INDEX=https://mirrors.ustc.edu.cn/pypi/simple
 ARG HTTP_PROXY=
 
 # Set the working directory
@@ -40,6 +42,8 @@ RUN pip config set global.index-url "$PIP_INDEX" && \
         python -m pip install -r requirements.txt; \
     fi
 
+RUN pip install deepspeed==0.15.4
+
 # Copy the rest of the application into the image
 COPY . /app
 
@@ -50,9 +54,6 @@ RUN EXTRA_PACKAGES="metrics"; \
     fi; \
     if [ "$INSTALL_VLLM" == "true" ]; then \
         EXTRA_PACKAGES="${EXTRA_PACKAGES},vllm"; \
-    fi; \
-    if [ "$INSTALL_DEEPSPEED" == "true" ]; then \
-        EXTRA_PACKAGES="${EXTRA_PACKAGES},deepspeed"; \
     fi; \
     if [ "$INSTALL_LIGER_KERNEL" == "true" ]; then \
         EXTRA_PACKAGES="${EXTRA_PACKAGES},liger-kernel"; \
@@ -91,11 +92,3 @@ RUN if [ -n "$HTTP_PROXY" ]; then \
 
 # Set up volumes
 VOLUME [ "/root/.cache/huggingface", "/root/.cache/modelscope", "/app/data", "/app/output" ]
-
-# Expose port 7860 for the LLaMA Board
-ENV GRADIO_SERVER_PORT 7860
-EXPOSE 7860
-
-# Expose port 8000 for the API service
-ENV API_PORT 8000
-EXPOSE 8000
