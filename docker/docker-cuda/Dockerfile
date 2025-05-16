@@ -31,6 +31,15 @@ RUN if [ -n "$HTTP_PROXY" ]; then \
         export https_proxy=$HTTP_PROXY; \
     fi
 
+
+# Clone the repository and set up the project
+RUN git clone https://github.com/cyzhh/Llama-Factory-cyzhh.git /app && \
+    cd /app && \
+    pip install modelscope && \
+    pip install huggingface && \
+    python download_dataset.py && \
+    python download_model.py
+    
 # Install the requirements
 COPY requirements.txt /app
 RUN pip config set global.index-url "$PIP_INDEX" && \
@@ -92,3 +101,6 @@ RUN if [ -n "$HTTP_PROXY" ]; then \
 
 # Set up volumes
 VOLUME [ "/root/.cache/huggingface", "/root/.cache/modelscope", "/app/data", "/app/output" ]
+
+# Set the entrypoint to run the training script
+CMD ["bash", "train.sh"]
