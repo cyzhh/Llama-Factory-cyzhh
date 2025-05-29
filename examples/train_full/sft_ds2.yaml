@@ -20,8 +20,7 @@ overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: /app/output/project_v4_20250508_Qwen2.5-7B-Instruct_v1
-export_hub_model_id: cyzhh/MMOS
+output_dir: /app/trained_models/project_v4_20250508_Qwen2.5-7B-Instruct_v1
 save_only_model: true
 logging_steps: 1
 save_steps: 10000
