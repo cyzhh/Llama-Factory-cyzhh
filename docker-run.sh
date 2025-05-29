@@ -7,5 +7,5 @@ docker run -dit --gpus=all \
     -v ./data:/app/data \
     -v ./output:/app/output \
     --shm-size 100G \
-    --name llamafactory-2 \
+    --name llamafactory \
     llamafactory

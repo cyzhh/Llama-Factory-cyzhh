@@ -30,15 +30,6 @@ RUN if [ -n "$HTTP_PROXY" ]; then \
         export http_proxy=$HTTP_PROXY; \
         export https_proxy=$HTTP_PROXY; \
     fi
-
-
-# Clone the repository and set up the project
-RUN git clone https://github.com/cyzhh/Llama-Factory-cyzhh.git /app && \
-    cd /app && \
-    pip install modelscope && \
-    pip install huggingface && \
-    python download_dataset.py && \
-    python download_model.py
     
 # Install the requirements
 COPY requirements.txt /app
